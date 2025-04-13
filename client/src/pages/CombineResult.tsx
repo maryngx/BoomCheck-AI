@@ -22,7 +22,8 @@ const CombineResult = () => {
     setLoadingMore((prev) => ({ ...prev, [name]: true }));
 
     try {
-      const res = await axios.post("http://localhost:5000/api/msds", { name });
+      // const res = await axios.post("http://localhost:5000/api/msds", { name });
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/msds`, { name });
       setExpanded((prev) => ({ ...prev, [name]: res.data }));
     } catch (err) {
       console.error("Failed to load full MSDS", err);

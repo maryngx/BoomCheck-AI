@@ -39,7 +39,8 @@ const CombinePanel = () => {
     }
   
     try {
-      const res = await axios.post("http://localhost:5000/api/combine", {
+      // const res = await axios.post("http://localhost:5000/api/combine", {
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/combine`, {
         chemicals: combineList,
       });
       console.log("🧪 Combine result from backend:", res.data);

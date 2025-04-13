@@ -16,7 +16,8 @@ const QuizPage = () => {
     const fetchQuiz = async () => {
       setLoading(true);
       try {
-        const res = await axios.post("http://localhost:5000/api/quiz", {
+        // const res = await axios.post("http://localhost:5000/api/quiz", {
+        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/quiz`, {
           text: fileText,
         });
         console.log("📥 Quiz API response:", res.data);

@@ -16,7 +16,8 @@ const ProcedurePage = () => {
       try {
         console.log("📤 Sending to /generate-procedure:", fileText);
         const res = await axios.post(
-          "http://localhost:5000/api/generate-procedure",
+          // "http://localhost:5000/api/generate-procedure",
+          `${import.meta.env.VITE_BACKEND_URL}/api/generate-procedure`,
           {
             text: fileText,
           }

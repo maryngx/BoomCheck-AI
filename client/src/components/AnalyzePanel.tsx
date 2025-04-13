@@ -26,9 +26,10 @@ const AnalyzePanel = () => {
     if (analyzeList.length === 0) return;
 
     try {
-      const res = await axios.post("http://localhost:5000/api/info", {
-        chemicalNames: analyzeList,
-      });
+      // const res = await axios.post("http://localhost:5000/api/info", {
+        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/info`, {
+          chemicalNames: analyzeList,
+        });
       setAnalyzeResult(res.data); // Expecting MSDS summaries array
       navigate("/analyze");
     } catch (err) {
