@@ -1,0 +1,21 @@
+[
+    {
+      "reactants": ["Sodium Hydroxide", "Benzoic Acid"],
+      "products": ["Sodium Benzoate", "Water"],
+      "type": "Neutralization",
+      "hazard": "Mild heat release"
+    },
+    {
+      "reactants": ["Sodium Hydroxide", "Phenolphthalein"],
+      "products": ["Colored Complex"],
+      "type": "Indicator color change",
+      "hazard": "Flammable due to alcohol"
+    },
+    {
+      "reactants": ["Phthalic Acid", "Sodium Hydroxide"],
+      "products": ["Sodium Phthalate", "Water"],
+      "type": "Acid-base reaction",
+      "hazard": "Minimal"
+    }
+]
+  

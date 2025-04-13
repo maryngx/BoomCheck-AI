@@ -1,0 +1,18 @@
+[
+    {
+      "chemicals": ["Sodium Hydroxide", "Phthalic Acid"],
+      "hazard": "Exothermic neutralization; corrosive fumes may form",
+      "alternative": "Use diluted acid or neutral buffer instead of strong base"
+    },
+    {
+      "chemicals": ["Phenolphthalein", "Open Flame"],
+      "hazard": "Fire risk due to alcohol content",
+      "alternative": "Use water-based indicator"
+    },
+    {
+      "chemicals": ["Sodium Hydroxide", "Benzoic Acid"],
+      "hazard": "Moderate heat release during neutralization; handle slowly",
+      "alternative": "Pre-dilute base before titration"
+    }
+  ]
+  
