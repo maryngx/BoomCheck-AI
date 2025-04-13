@@ -10,7 +10,7 @@
   .chemistry-gradient-bg {
     position: absolute;
     inset: 0;
-    background: linear-gradient(130deg, black 0%, #f7b2d910 100%);
+    background: linear-gradient(130deg, #89CFF0 0%, #FAAFBA 100%);
     z-index: 0;
     opacity: 0.6;
   }

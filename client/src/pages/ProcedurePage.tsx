@@ -47,33 +47,50 @@ const ProcedurePage = () => {
       ) : (
         <div className="space-y-8 max-w-3xl mx-auto text-gray-700 text-sm leading-relaxed">
           <div className="bg-white rounded-xl shadow p-6">
-            <h2 className="text-xl font-semibold mb-2">🧪 Lab Procedure</h2>
-            <ul className="list-decimal ml-6">
-              {procedure.lab_procedure?.map((step: string, idx: number) => (
-                <li key={idx}>{step}</li>
-              ))}
-            </ul>
-          </div>
+  <h2 className="text-xl font-semibold mb-2">🧪 Lab Procedure</h2>
+  {procedure.lab_procedure && procedure.lab_procedure.length > 0 ? (
+    <ul className="list-decimal ml-6">
+      {procedure.lab_procedure.map((step: string, idx: number) => (
+        <li key={idx}>{step}</li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-gray-500 italic">
+      ⚠️ Cannot create a lab procedure from your given text.
+    </p>
+  )}
+</div>
 
-          <div className="bg-white rounded-xl shadow p-6">
-            <h2 className="text-xl font-semibold mb-2">
-              📝 Post-Lab Questions
-            </h2>
-            <ul className="list-disc ml-6">
-              {procedure.post_lab_questions?.map((q: string, idx: number) => (
-                <li key={idx}>{q}</li>
-              ))}
-            </ul>
-          </div>
+<div className="bg-white rounded-xl shadow p-6">
+  <h2 className="text-xl font-semibold mb-2">📝 Post-Lab Questions</h2>
+  {procedure.post_lab_questions && procedure.post_lab_questions.length > 0 ? (
+    <ul className="list-disc ml-6">
+      {procedure.post_lab_questions.map((q: string, idx: number) => (
+        <li key={idx}>{q}</li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-gray-500 italic">
+      ⚠️ Cannot generate post-lab questions from your given text.
+    </p>
+  )}
+</div>
 
-          <div className="bg-white rounded-xl shadow p-6">
-            <h2 className="text-xl font-semibold mb-2">🔧 Equipment</h2>
-            <ul className="list-decimal ml-6">
-              {procedure.equipment?.map((e: string, idx: number) => (
-                <li key={idx}>{e}</li>
-              ))}
-            </ul>
-          </div>
+<div className="bg-white rounded-xl shadow p-6">
+  <h2 className="text-xl font-semibold mb-2">🔧 Equipment</h2>
+  {procedure.equipment && procedure.equipment.length > 0 ? (
+    <ul className="list-decimal ml-6">
+      {procedure.equipment.map((e: string, idx: number) => (
+        <li key={idx}>{e}</li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-gray-500 italic">
+      ⚠️ Cannot extract equipment list from your given text.
+    </p>
+  )}
+</div>
+
         </div>
       )}
 

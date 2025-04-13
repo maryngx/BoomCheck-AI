@@ -1,43 +1,28 @@
-require("dotenv").config();
-const fs = require("fs");
-const path = require("path");
-// const OpenAI = require('openai');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const dbPath = path.join(__dirname, "../../data/db.json");
-const chemicalData = JSON.parse(fs.readFileSync(dbPath, "utf-8"));
-const knownChemicals = chemicalData.map((c) => c.name.toLowerCase());
-
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY
-// });
-
-// 🧠 AI extractor (SAFE)
-// async function extractWithOpenAI(text, apiKey) {
-async function extractWithGeminiAI(text, apiKey) {
+// 🧠 AI extractor – now supports *any* chemical, not just known ones
+async function extractWithGeminiAI(text) {
   const prompt = `
-You are a chemistry assistant.
+You are a smart chemistry assistant.
 
-From the following lab text, extract all chemical names that appear in the given list of known chemicals.
+From the following lab document, extract a list of all chemical substances mentioned. This includes:
+- Reagents
+- Solutions
+- Acids and bases
+- Indicators
+- Any compounds, elements, or formulas
 
-Return your answer ONLY as a JSON array of exact matches. Do not add any other text.
+Do NOT include lab instruments, procedures, or non-chemical items.
 
-Example:
-["sodium hydroxide", "benzoic acid"]
-
-Known chemicals:
-${knownChemicals.join(", ")}
+Return ONLY a JSON array of lowercase chemical names (e.g., ["sodium hydroxide", "citric acid"]). Do NOT add Markdown or any explanation.
 
 Text:
+"""
 ${text}
+"""
 `;
 
-  // const response = await openai.chat.completions.create({
-  //   model: "gpt-3.5-turbo",
-  //   messages: [{ role: "user", content: prompt }],
-  //   temperature: 0.3
-  // });
   const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
   const result = await model.generateContent({
     contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -47,26 +32,20 @@ ${text}
   let raw = response.text();
   console.log("📨 Gemini raw output:", raw);
 
-  // ✅ Strip ```json ... ``` if present
+  // Remove ```json wrapper if present
   raw = raw.replace(/```json\s*([\s\S]*?)\s*```/, "$1").trim();
 
   try {
     const parsed = JSON.parse(raw);
-
-    // Filter to known ones (lowercase)
-    const matched = parsed
-      .map((name) => name.toLowerCase().trim())
-      .filter((name) => knownChemicals.includes(name));
-
-    return matched;
+    return parsed.map((name) => name.toLowerCase().trim());
   } catch (err) {
     console.warn("AI extract JSON parse failed:", err.message);
     return [];
   }
 }
 
-// 🔍 Basic extractor using exact name match with case-insensitive regex
-function extractByNameMatching(text) {
+// 🔍 Regex fallback (unchanged)
+function extractByNameMatching(text, knownChemicals) {
   const matches = new Set();
   const lowerText = text.toLowerCase();
 
@@ -83,6 +62,5 @@ function extractByNameMatching(text) {
 
 module.exports = {
   extractByNameMatching,
-  // extractWithOpenAI
   extractWithGeminiAI,
 };

@@ -40,7 +40,7 @@ const AnalyzePanel = () => {
   return (
     <div
       ref={drop}
-      className={`bg-[#F1F8E8] border border-gray-400 rounded-xl shadow p-4 relative min-h-[200px] transition-all 
+      className={`bg-[#F5EFFF] border border-gray-400 items-center rounded-xl shadow p-4 relative min-h-[200px] transition-all 
         ${isOver ? "bg-green-100 border-green-400 border" : "border border-gray-400"}`}
     >
       <h2 className="text-xl font-semibold mb-2">🔬 Analyzing</h2>
@@ -51,7 +51,7 @@ const AnalyzePanel = () => {
             Drag 1 or more chemicals here to analyze
           </p>
         ) : (
-          <ul className="flex flex-wrap gap-2 mb-3 text-sm">
+          <ul className="flex items-center justify-center flex-wrap gap-2 mb-3 text-sm">
             {analyzeList.map((chem, i) => (
               <li
                 key={i}

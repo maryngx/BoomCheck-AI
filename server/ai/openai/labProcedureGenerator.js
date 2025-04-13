@@ -42,6 +42,7 @@ async function generateLabProcedureFromText(text, apiKey) {
   const response = await result.response;
   let content = response.text();
   content = content.replace(/```json\s*([\s\S]*?)\s*```/, "$1").trim(); // ✅ remove ```json ... ``` block
+  console.log(content)
 
   return content;
 }

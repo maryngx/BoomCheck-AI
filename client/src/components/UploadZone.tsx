@@ -9,6 +9,8 @@ const UploadZone = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isLearning, setIsLearning] = useState(false);
+
   const navigate = useNavigate();
 
   const handleUpload = async (e) => {
@@ -23,39 +25,49 @@ const UploadZone = () => {
       setError("Only .pdf or .docx files are supported.");
       return;
     }
-
+  
+    const formData = new FormData();
+    formData.append("file", file);
+  
     setLoading(true);
     setError("");
     setSuccess(false);
-
-    const formData = new FormData();
-    formData.append("file", file);
-
+  
     try {
       const res = await axios.post(
         "http://localhost:5000/api/upload",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        },
+        }
       );
-
+  
       setUploadedFile(file.name);
       setChemicalList(res.data.chemicals || []);
       setFileText(res.data.text || "");
       setSuccess(true);
-      setTimeout(() => {
-        navigate("/workspace");
-      }, 800);
+  
+      // ✅ NOW decide if we show "learning"
+      if (res.data.newlyAddedChemicals?.length > 0) {
+        setIsLearning(true);
+        setTimeout(() => {
+          setIsLearning(false);
+          navigate("/workspace");
+        }, 2500);
+      } else {
+        setTimeout(() => {
+          navigate("/workspace");
+        }, 800);
+      }
     } catch (err) {
       setError(err.response?.data?.error || "Server error. Please try again.");
     } finally {
-      setLoading(false);
+      setLoading(false); // ✅ hide "Uploading..." here
     }
-  };
+  };  
 
   return (
-    <div className="bg-custom-gradient to-blue-50 p-8 rounded-2xl shadow-xl w-full text-center">
+    <div className="to-blue-50 p-8 rounded-2xl shadow-xl w-full text-center">
       <label
         htmlFor="file-upload"
         className="block cursor-pointer border-2 border-dashed border-blue-400 py-8 px-4 rounded-xl hover:bg-blue-50 transition"
@@ -74,14 +86,20 @@ const UploadZone = () => {
         className="hidden"
       />
 
-      {loading && (
-        <p className="mt-4 text-blue-600 animate-pulse">
-          🔍 Uploading and analyzing your file...
-        </p>
-      )}
+{loading && !isLearning && (
+  <p className="mt-4 text-blue-600 animate-pulse">
+    🔍 Uploading and analyzing your file...
+  </p>
+)}
+{isLearning && (
+  <p className="mt-4 text-pink-600 animate-pulse">
+    ⏳ Waiting for website to learn new chemicals...
+  </p>
+)}
       {success && (
         <p className="mt-4 text-green-600">✅ File uploaded! Redirecting...</p>
       )}
+
       {error && <p className="mt-4 text-red-500">{error}</p>}
     </div>
   );

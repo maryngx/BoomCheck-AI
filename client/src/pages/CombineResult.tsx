@@ -43,7 +43,7 @@ const CombineResult = () => {
       {!combineResult ? (
         <p className="text-center text-gray-500">Analyzing combination...</p>
       ) : (
-        <div className="bg-yellow-50 rounded-xl shadow space-y-3 p-6 max-w-4xl mx-auto">
+        <div className="rounded-xl shadow space-y-3 p-6 max-w-4xl mx-auto">
           <div className="bg-gray-100 border border-gray-400 rounded-xl p-4">
             <p className="text-lg break-words whitespace-normal">
               🧪 <strong>Reaction Prediction:</strong>{" "}

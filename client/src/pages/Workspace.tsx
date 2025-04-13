@@ -22,7 +22,7 @@ const Workspace = () => {
         <AnalyzePanel />
 
         {/* Chemical List */}
-        <div className="bg-[#F7F9F2] border border-gray-400 rounded-xl shadow p-4">
+        <div className="bg-[#E1F0DA] border border-gray-400 rounded-xl shadow p-4">
           <h2 className="text-xl font-semibold mb-2">Necessary Substances</h2>
           <div className="flex flex-wrap gap-10">
             {chemicalList.map((name, i) => (

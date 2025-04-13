@@ -9,9 +9,21 @@ export const ChemicalProvider = ({ children }) => {
 
   const [analyzeList, setAnalyzeList] = useState([]);
   const [combineList, setCombineList] = useState([]);
-
   const [combineResult, setCombineResult] = useState(null);
   const [analyzeResult, setAnalyzeResult] = useState([]);
+
+  // ✅ NEW: combine cache
+  const [combineCache, setCombineCache] = useState(new Map());
+
+  const getCachedCombination = (names) => {
+    const key = [...names].sort().join("::");
+    return combineCache.get(key);
+  };
+
+  const setCachedCombination = (names, result) => {
+    const key = [...names].sort().join("::");
+    setCombineCache((prev) => new Map(prev).set(key, result));
+  };
 
   const resetChemicals = () => {
     setChemicalList([]);
@@ -37,6 +49,8 @@ export const ChemicalProvider = ({ children }) => {
         analyzeResult,
         setAnalyzeResult,
         resetChemicals,
+        getCachedCombination,     // ✅ expose cache handlers
+        setCachedCombination,
       }}
     >
       {children}
