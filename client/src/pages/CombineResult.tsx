@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { ChemicalContext } from "../contexts/ChemicalContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import FloatingIconsBackground from "@/components/FloatingIconsBackground";
+import FloatingIconsBackground from "@/components/FloatingIconsBackground.tsx";
 
 const hazardColors = {
   HIGH: "bg-red-200 border-red-500",

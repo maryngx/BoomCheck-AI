@@ -2,7 +2,7 @@ import { useContext } from "react";
 import UploadZone from "../components/UploadZone";
 import { ChemicalContext } from "../contexts/ChemicalContext";
 import { useNavigate } from "react-router-dom";
-import FloatingIconsBackground from "../components/FloatingIconsBackground";
+import FloatingIconsBackground from "../components/FloatingIconsBackground.tsx";
 
 const Home = () => {
   const { uploadedFile, setUploadedFile, resetChemicals } =

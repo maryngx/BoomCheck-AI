@@ -4,7 +4,7 @@ import { ChemicalContext } from "../contexts/ChemicalContext";
 import ChemicalBox from "../components/ChemicalBox";
 import AnalyzePanel from "../components/AnalyzePanel";
 import CombinePanel from "../components/CombinePanel";
-import FloatingIconsBackground from "@/components/FloatingIconsBackground";
+import FloatingIconsBackground from "@/components/FloatingIconsBackground.tsx";
 
 const Workspace = () => {
   const { chemicalList } = useContext(ChemicalContext);
