@@ -11,7 +11,7 @@ const chemicalRoutes = require('./routes/chemicalRoutes');
 
 const app = express();
 // app.use(cors({ origin: "http://localhost:5173" }));       // ✔️ Frontend CORS OK for local dev
-app.use(cors({ origin: "https://boom-check-ai.vercel.app/" }));       // ✔️ Frontend CORS OK for local dev
+app.use(cors({ origin: "https://boom-check-ai.vercel.app" }));       // ✔️ Frontend CORS OK for local dev
 app.use(express.json());                                  // ✔️ Parse JSON payloads
 
 // ✔️ Setup API routes
