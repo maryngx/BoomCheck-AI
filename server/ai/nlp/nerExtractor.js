@@ -1,20 +1,21 @@
-require('dotenv').config();
-const fs = require('fs');
-const path = require('path');
+require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
 // const OpenAI = require('openai');
-const { GoogleGenerativeAI } = require("@google/generative-ai"); // ✅ fixed import
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);   // ✅ fixed instantiation
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const dbPath = path.join(__dirname, '../../data/db.json');
-const chemicalData = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
-const knownChemicals = chemicalData.map(c => c.name.toLowerCase());
+const dbPath = path.join(__dirname, "../../data/db.json");
+const chemicalData = JSON.parse(fs.readFileSync(dbPath, "utf-8"));
+const knownChemicals = chemicalData.map((c) => c.name.toLowerCase());
 
 // const openai = new OpenAI({
 //   apiKey: process.env.OPENAI_API_KEY
 // });
 
 // 🧠 AI extractor (SAFE)
-async function extractWithOpenAI(text, apiKey) {
+// async function extractWithOpenAI(text, apiKey) {
+async function extractWithGeminiAI(text, apiKey) {
   const prompt = `
 You are a chemistry assistant.
 
@@ -41,21 +42,21 @@ ${text}
   const result = await model.generateContent({
     contents: [{ role: "user", parts: [{ text: prompt }] }],
   });
-  
+
   const response = await result.response;
   let raw = response.text();
-console.log("📨 Gemini raw output:", raw);
+  console.log("📨 Gemini raw output:", raw);
 
-// ✅ Strip ```json ... ``` if present
-raw = raw.replace(/```json\s*([\s\S]*?)\s*```/, '$1').trim();
+  // ✅ Strip ```json ... ``` if present
+  raw = raw.replace(/```json\s*([\s\S]*?)\s*```/, "$1").trim();
 
   try {
     const parsed = JSON.parse(raw);
 
     // Filter to known ones (lowercase)
     const matched = parsed
-      .map(name => name.toLowerCase().trim())
-      .filter(name => knownChemicals.includes(name));
+      .map((name) => name.toLowerCase().trim())
+      .filter((name) => knownChemicals.includes(name));
 
     return matched;
   } catch (err) {
@@ -70,8 +71,8 @@ function extractByNameMatching(text) {
   const lowerText = text.toLowerCase();
 
   for (const name of knownChemicals) {
-    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`\\b${escaped}\\b`, 'i');
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`\\b${escaped}\\b`, "i");
     if (regex.test(lowerText)) {
       matches.add(name);
     }
@@ -82,5 +83,6 @@ function extractByNameMatching(text) {
 
 module.exports = {
   extractByNameMatching,
-  extractWithOpenAI
+  // extractWithOpenAI
+  extractWithGeminiAI,
 };

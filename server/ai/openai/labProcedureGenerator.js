@@ -1,14 +1,14 @@
-require('dotenv').config();
+require("dotenv").config();
 // const OpenAI = require('openai');
 
 // const openai = new OpenAI({
 //   apiKey: process.env.OPENAI_API_KEY
 // });
 const { GoogleGenerativeAI } = require("@google/generative-ai"); // ✅ fixed import
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);   // ✅ fixed instantiation
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); // ✅ fixed instantiation
 
 async function generateLabProcedureFromText(text, apiKey) {
-  if (!apiKey) throw new Error("Missing OpenAI API key");
+  // if (!apiKey) throw new Error("Missing OpenAI API key");
 
   const prompt = `
     You are a chemistry lab assistant. The following experiment document contains several sections, including lab procedure, post-lab questions, and equipment used.
@@ -35,16 +35,15 @@ async function generateLabProcedureFromText(text, apiKey) {
   // });
   const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" }); // You can change to gemini-pro if needed
 
-const result = await model.generateContent({
-  contents: [{ role: "user", parts: [{ text: prompt }] }],
-});
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  });
 
-const response = await result.response;
-let content = response.text();
-content = content.replace(/```json\s*([\s\S]*?)\s*```/, '$1').trim(); // ✅ remove ```json ... ``` block
+  const response = await result.response;
+  let content = response.text();
+  content = content.replace(/```json\s*([\s\S]*?)\s*```/, "$1").trim(); // ✅ remove ```json ... ``` block
 
-return content;
-
+  return content;
 }
 
 module.exports = { generateLabProcedureFromText };

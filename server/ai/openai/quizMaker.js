@@ -1,59 +1,92 @@
-require('dotenv').config();
-// const OpenAI = require('openai');
+require("dotenv").config();
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY
-// });
-const { GoogleGenerativeAI } = require("@google/generative-ai"); // ✅ fixed import
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);   // ✅ fixed instantiation
+function parseRawQuiz(raw) {
+  return raw
+    .split(/Q\d+:/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => {
+      const match = /Answer:\s*([A-D])/i.exec(block);
+      const correctLetter = match ? match[1].toUpperCase() : "";
+      const questionLines = block.split("Answer:")[0].trim().split("\n");
+      const question = questionLines[0].trim();
+      const choices = questionLines
+        .slice(1)
+        .map((line) => line.replace(/^[A-Da-d]\.\s*/, "").trim());
 
-// 🧪 NEW: Pre-lab quiz from full experiment text
-async function generateQuizFromText(text, apiKey) {
-  if (!apiKey) throw new Error("Missing OpenAI API key");
+      const correctIndex = { A: 0, B: 1, C: 2, D: 3 }[correctLetter] ?? -1;
+      const correct = choices[correctIndex] || "";
 
+      if (!correct) {
+        console.warn("⚠️ Could not match correct answer for:", question, {
+          correctLetter,
+          choices,
+        });
+      }
+
+      return { question, choices, correct };
+    });
+}
+
+// 🧪 AI quiz generator
+async function generateQuizFromText(text) {
   const prompt = `
-You are a chemistry instructor preparing a **pre-lab quiz** based on the following experiment instructions.
+You are a chemistry instructor generating a multiple-choice **pre-lab quiz**.
 
-Instructions:
-${text}
-
-Create **5 multiple choice questions** to test students' understanding before performing the lab. Focus on:
+You will be given an experiment. Create **exactly 5** questions. Focus on:
 - Experimental steps
+- Chemicals and equipment
 - Safety precautions
-- Chemicals involved
-- Equipment usage
-- Data collection
+- Measurement and pH
 
-Format each question like this:
+⚠️ FORMAT STRICTLY like this:
+Q1: [Question text]
+A. [Option A]
+B. [Option B]
+C. [Option C]
+D. [Option D]
+Answer: C
 
-Q: [question]
-A. ...
-B. ...
-C. ...
-D. ...
-Answer: [correct letter]
+⚠️ IMPORTANT:
+- Do not include explanations after "Answer:"
+- Do not use markdown (**bold**, *, etc.)
+- Do not add headings or intro text
+- Start directly with: Q1: ...
+- Answers must be a single letter: A, B, C, or D
 
-Be accurate and informative.
-  `;
+📄 Experiment:
+---
+${text}
+---
+`;
 
-  // const response = await openai.chat.completions.create({
-  //   model: "gpt-3.5-turbo",
-  //   messages: [{ role: "user", content: prompt }],
-  //   temperature: 0.6
-  // });
-  const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" }); // or "gemini-pro"
+  const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-const result = await model.generateContent({
-  contents: [{ role: "user", parts: [{ text: prompt }] }],
-});
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  });
 
-const response = await result.response;
-let raw = response.text();
-raw = raw.replace(/```[a-z]*\s*([\s\S]*?)\s*```/, '$1').trim(); // ✅ Strip markdown fences
+  const response = await result.response;
+  let raw = response.text();
+  console.log("🧠 Gemini Raw Output:\n", raw);
+  raw = raw.replace(/```[a-z]*\s*([\s\S]*?)\s*```/, "$1").trim();
+  console.log("📋 Raw Gemini quiz output:\n", raw);
 
-return raw; // This is the AI-generated content as a plain string
+  const parsedQuiz = parseRawQuiz(raw); // ✅ Gemini fix
+  if (!parsedQuiz.length) {
+    throw new Error(
+      "Quiz parser returned zero questions. Possibly malformed Gemini response.",
+    );
+  }
+
+  return {
+    source: "ai",
+    questions: parsedQuiz,
+  };
 }
 
 module.exports = {
-  generateQuizFromText
+  generateQuizFromText,
 };

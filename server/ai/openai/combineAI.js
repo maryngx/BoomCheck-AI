@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 
 // 🔒 OpenAI option (commented out for now)
 // const OpenAI = require('openai');
@@ -7,7 +7,7 @@ require('dotenv').config();
 // });
 
 const { GoogleGenerativeAI } = require("@google/generative-ai"); // ✅ fixed import
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);   // ✅ fixed instantiation
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); // ✅ fixed instantiation
 
 let callCount = 0;
 
@@ -43,16 +43,16 @@ Only return the JSON object. Make sure chemical formulas are correct and the equ
 
   // ✅ Gemini API
   const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" }); // or "gemini-pro"
-    const result = await model.generateContent({
+  const result = await model.generateContent({
     contents: [{ role: "user", parts: [{ text: prompt }] }],
-    });
+  });
 
-    const response = await result.response;
-    let content = response.text();
-content = content.replace(/```json\s*([\s\S]*?)\s*```/, '$1').trim(); // ✅ remove ```json ... ``` block
+  const response = await result.response;
+  let content = response.text();
+  content = content.replace(/```json\s*([\s\S]*?)\s*```/, "$1").trim(); // ✅ remove ```json ... ``` block
 
-    console.log(content); // Log full AI output as plain text
-    console.log(`🧠 Gemini response received in ${(Date.now() - start) / 1000}s`);
+  console.log(content); // Log full AI output as plain text
+  console.log(`🧠 Gemini response received in ${(Date.now() - start) / 1000}s`);
 
   if (!content) throw new Error("AI returned empty response.");
 

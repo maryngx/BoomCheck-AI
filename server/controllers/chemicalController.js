@@ -1,11 +1,13 @@
-const db = require('../data/db.json');
-const { getChemicalData } = require('../utils/msdsSummarizer');
+const db = require("../data/db.json");
+const { getChemicalData } = require("../utils/msdsSummarizer");
 // const { predictReaction } = require('../ai/models/reactionPredictor');
 // const { safetyAdvisorAI } = require('../ai/openai/safetyAdvisor');
 // const { suggestSaferAlternatives } = require('../ai/openai/suggestionEngine');
-const { generateQuizFromText } = require('../ai/openai/quizMaker');
-const { generateLabProcedureFromText } = require('../ai/openai/labProcedureGenerator');
-const { combineChemicalsAI } = require('../ai/openai/combineAI');
+const { generateQuizFromText } = require("../ai/openai/quizMaker");
+const {
+  generateLabProcedureFromText,
+} = require("../ai/openai/labProcedureGenerator");
+const { combineChemicalsAI } = require("../ai/openai/combineAI");
 
 /**
  * Get short summaries for a list of chemical names
@@ -14,38 +16,39 @@ exports.getChemicalInfo = (req, res) => {
   const { chemicalNames } = req.body;
 
   if (!Array.isArray(chemicalNames)) {
-    return res.status(400).json({ error: 'chemicalNames should be an array' });
+    return res.status(400).json({ error: "chemicalNames should be an array" });
   }
 
-  const summaries = chemicalNames.map(name => {
-    const full = getChemicalData(name);
-    if (!full) return null;
+  const summaries = chemicalNames
+    .map((name) => {
+      const full = getChemicalData(name);
+      if (!full) return null;
 
-    // Return only sections 1–5
-    return {
-      name: full.name,
-      icon: full.icon,
-      cas_number: full.cas_number,
-      formula: full.formula,
-      molar_mass: full.molar_mass,
-      melting_point: full.melting_point,
-      boiling_point: full.boiling_point,
-      ph: full.ph,
-      density: full.density,
-      hazard_status: full.hazard_status,
-      solubility: full.solubility,
-      flammability: full.flammability,
-      hmnfpa: full.hmnfpa,
-      ppe: full.ppe,
-      handling: full.handling,
-      first_aid: full.first_aid,
-      disposal: full.disposal
-    };
-  }).filter(Boolean);
+      // Return only sections 1–5
+      return {
+        name: full.name,
+        icon: full.icon,
+        cas_number: full.cas_number,
+        formula: full.formula,
+        molar_mass: full.molar_mass,
+        melting_point: full.melting_point,
+        boiling_point: full.boiling_point,
+        ph: full.ph,
+        density: full.density,
+        hazard_status: full.hazard_status,
+        solubility: full.solubility,
+        flammability: full.flammability,
+        hmnfpa: full.hmnfpa,
+        ppe: full.ppe,
+        handling: full.handling,
+        first_aid: full.first_aid,
+        disposal: full.disposal,
+      };
+    })
+    .filter(Boolean);
 
   res.json(summaries);
 };
-
 
 /**
  * Get full MSDS of a single chemical
@@ -53,16 +56,14 @@ exports.getChemicalInfo = (req, res) => {
 exports.getChemicalMSDS = (req, res) => {
   const { name } = req.body;
 
-  if (!name || typeof name !== 'string') {
-    return res.status(400).json({ error: 'Chemical name is required' });
+  if (!name || typeof name !== "string") {
+    return res.status(400).json({ error: "Chemical name is required" });
   }
 
-  const match = db.find(
-    c => c.name.toLowerCase() === name.toLowerCase()
-  );
+  const match = db.find((c) => c.name.toLowerCase() === name.toLowerCase());
 
   if (!match) {
-    return res.status(404).json({ error: 'Chemical not found' });
+    return res.status(404).json({ error: "Chemical not found" });
   }
 
   res.json(match);
@@ -120,7 +121,7 @@ exports.combineChemicals = async (req, res) => {
   console.time("combine-api"); // started
 
   if (!Array.isArray(chemicalNames) || chemicalNames.length < 2) {
-    return res.status(400).json({ error: 'Provide at least 2 chemical names' });
+    return res.status(400).json({ error: "Provide at least 2 chemical names" });
   }
 
   try {
@@ -139,13 +140,15 @@ exports.combineChemicals = async (req, res) => {
       balancedEquation: aiResponse.balanced_equation || "Unknown",
       safetyAdvisor: aiResponse.safety_advisor || {},
       saferAlternatives: aiResponse.safer_alternatives || {},
-      source: 'ai'
+      source: "ai",
     });
-    
+
     console.timeEnd("⏱️ Combine API Time");
   } catch (err) {
-    console.error('❌ Error in combineChemicals:', err);
-    res.status(500).json({ error: 'Failed to analyze combination', details: err.message });
+    console.error("❌ Error in combineChemicals:", err);
+    res
+      .status(500)
+      .json({ error: "Failed to analyze combination", details: err.message });
   }
 };
 
@@ -153,7 +156,7 @@ exports.combineChemicals = async (req, res) => {
  * Return all known chemical names
  */
 exports.listChemicals = (req, res) => {
-  const names = db.map(c => c.name);
+  const names = db.map((c) => c.name);
   res.json(names);
 };
 
@@ -161,41 +164,20 @@ exports.generateChemicalQuiz = async (req, res) => {
   const { text } = req.body;
   console.log("🧪 Quiz requested for:", text);
 
-  if (!text || typeof text !== 'string' || text.trim().length < 10) {
-    return res.status(400).json({ error: 'Please provide valid experiment text.' });
+  if (!text || typeof text !== "string" || text.trim().length < 10) {
+    return res
+      .status(400)
+      .json({ error: "Please provide valid experiment text." });
   }
 
   try {
-    const quiz = await generateQuizFromText(text, process.env.OPENAI_API_KEY);
-    console.log("✅ Quiz generated:", quiz);
-    const formatted = quiz
-      .split("Q:")
-      .map(block => block.trim())
-      .filter(Boolean)
-      .map(block => {
-        const [questionPart, answerPart] = block.split("Answer:");
-        const questionLines = questionPart.trim().split("\n");
-        const question = questionLines[0].trim();
-        const choices = questionLines.slice(1).map(line => {
-          return line.replace(/^[A-Da-d]\.\s*/, "").trim(); // Remove "A. ", "B. ", etc.
-        });
-
-        const correctLetter = answerPart?.trim()?.split("\n")[0];
-        const correctIndex = ["A", "B", "C", "D"].indexOf(correctLetter?.toUpperCase());
-        const correct = choices[correctIndex] || "";
-
-        return {
-          question,
-          choices,
-          correct,
-        };
-      });
-
-    res.json({ questions: formatted, source: "ai" });
-
+    const quiz = await generateQuizFromText(text); // Already parsed ✅
+    res.json(quiz);
   } catch (err) {
     console.error("❌ Quiz generation error:", err);
-    res.status(500).json({ error: 'Quiz generation failed', details: err.message });
+    res
+      .status(500)
+      .json({ error: "Quiz generation failed", details: err.message });
   }
 };
 
@@ -203,15 +185,22 @@ exports.createLabProcedure = async (req, res) => {
   const { text } = req.body;
   console.log("📄 Generating lab procedures from uploaded text...");
 
-  if (!text || typeof text !== 'string' || text.trim().length < 10) {
-    return res.status(400).json({ error: 'Please provide valid experiment text' });
+  if (!text || typeof text !== "string" || text.trim().length < 10) {
+    return res
+      .status(400)
+      .json({ error: "Please provide valid experiment text" });
   }
 
   try {
-    const procedure = await generateLabProcedureFromText(text, process.env.OPENAI_API_KEY);
-    res.json({ procedure, source: 'ai' });
+    const procedure = await generateLabProcedureFromText(
+      text,
+      process.env.OPENAI_API_KEY,
+    );
+    res.json({ procedure, source: "ai" });
   } catch (err) {
     console.error("❌ Procedure generation error:", err);
-    res.status(500).json({ error: 'Failed to generate procedure', details: err.message });
+    res
+      .status(500)
+      .json({ error: "Failed to generate procedure", details: err.message });
   }
 };
