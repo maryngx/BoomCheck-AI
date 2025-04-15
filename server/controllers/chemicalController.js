@@ -9,6 +9,7 @@ const { combineChemicalsAI } = require("../ai/openai/combineAI");
  */
 exports.getChemicalInfo = async (req, res) => {
   const { chemicalNames } = req.body;
+  console.log("📬 /api/info received:", chemicalNames);
 
   if (!Array.isArray(chemicalNames)) {
     return res.status(400).json({ error: "chemicalNames should be an array" });
@@ -16,8 +17,11 @@ exports.getChemicalInfo = async (req, res) => {
 
   try {
     const found = await Chemical.find({
-      name: { $in: chemicalNames },
+      $or: chemicalNames.map(name => ({
+        name: { $regex: `^${name}$`, $options: "i" }
+      }))
     });
+    console.log("✅ Chemicals found:", found.map(c => c.name));
 
     const summaries = found.map((chem) => ({
       name: chem.name,

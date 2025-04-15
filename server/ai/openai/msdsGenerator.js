@@ -23,16 +23,23 @@ function sanitizeGeminiOutput(text) {
 
 exports.generateMSDSWithGemini = async (chemicalName) => {
   const prompt = `
-You are a chemistry assistant. Generate a Material Safety Data Sheet (MSDS) in strict JSON format (no markdown) for the chemical: "${chemicalName}".
+You are a chemistry assistant. Generate a Material Safety Data Sheet (MSDS) in strict JSON format (no markdown or HTML) for the chemical: "${chemicalName}".
 
-Respond with a single JSON object using the schema below. Don't explain or add extra text.
+Instructions:
+- Use **Unicode subscripts** for digits in the formula. For example:
+  - "H2O" → "H₂O"
+  - "C7H6O2" → "C₇H₆O₂"
+  - "Zn(NO3)2" → "Zn(NO₃)₂"
+  - This means you must replace every digit in the formula with its Unicode subscript version (₀–₉).
+  - Do NOT use HTML tags like <sub></sub> or plain digits like "H2O".
 
-Schema:
+Return ONLY the JSON object, matching the schema below:
+
 {
   "name": "string",
-  "icon": "string, choose only 1 of these 3 icons ✅, ⚠️, and 🔥 properly",
+  "icon": "leave it empty/blank",
   "cas_number": "string",
-  "formula": "string",
+  "formula": "string with Unicode subscripts (not HTML)",
   "molar_mass": "string",
   "melting_point": "string",
   "boiling_point": "string",
@@ -44,7 +51,7 @@ Schema:
   "hmnfpa": { "health": number, "fire": number, "reactivity": number },
   "ppe": [string],
   "handling": "string",
-  "first_aid": "string or object with keys: skin, eyes, inhalation, ingestion",
+  "first_aid": "string or object",
   "disposal": "string",
   "incompatibilities": "string",
   "storage": "string",

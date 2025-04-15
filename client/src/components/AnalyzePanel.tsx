@@ -27,9 +27,10 @@ const AnalyzePanel = () => {
 
     try {
       // const res = await axios.post("http://localhost:5000/api/info", {
-        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/info`, {
+       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/info`, {
           chemicalNames: analyzeList,
         });
+      console.log("📤 Sending /api/info with:", analyzeList);
       setAnalyzeResult(res.data); // Expecting MSDS summaries array
       navigate("/analyze");
     } catch (err) {
