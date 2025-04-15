@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import './index.css';
+import "./index.css";
 
 import { BrowserRouter } from "react-router-dom";
 import { ChemicalProvider } from "./contexts/ChemicalContext.js";
@@ -23,5 +23,5 @@ ReactDOM.createRoot(root).render(
         </DndProvider>
       </ChemicalProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

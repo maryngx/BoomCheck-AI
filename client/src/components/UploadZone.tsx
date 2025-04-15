@@ -25,14 +25,14 @@ const UploadZone = () => {
       setError("Only .pdf or .docx files are supported.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("file", file);
-  
+
     setLoading(true);
     setError("");
     setSuccess(false);
-  
+
     try {
       const res = await axios.post(
         // "http://localhost:5000/api/upload",
@@ -40,14 +40,14 @@ const UploadZone = () => {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        }
+        },
       );
-  
+
       setUploadedFile(file.name);
       setChemicalList(res.data.chemicals || []);
       setFileText(res.data.text || "");
       setSuccess(true);
-  
+
       // ✅ NOW decide if we show "learning"
       if (res.data.newlyAddedChemicals?.length > 0) {
         setIsLearning(true);
@@ -65,7 +65,7 @@ const UploadZone = () => {
     } finally {
       setLoading(false); // ✅ hide "Uploading..." here
     }
-  };  
+  };
 
   return (
     <div className="to-blue-50 p-8 rounded-2xl shadow-xl w-full text-center">
@@ -87,16 +87,16 @@ const UploadZone = () => {
         className="hidden"
       />
 
-{loading && !isLearning && (
-  <p className="mt-4 text-blue-600 animate-pulse">
-    🔍 Uploading and analyzing your file...
-  </p>
-)}
-{isLearning && (
-  <p className="mt-4 text-pink-600 animate-pulse">
-    ⏳ Waiting for website to learn new chemicals...
-  </p>
-)}
+      {loading && !isLearning && (
+        <p className="mt-4 text-blue-600 animate-pulse">
+          🔍 Uploading and analyzing your file...
+        </p>
+      )}
+      {isLearning && (
+        <p className="mt-4 text-pink-600 animate-pulse">
+          ⏳ Waiting for website to learn new chemicals...
+        </p>
+      )}
       {success && (
         <p className="mt-4 text-green-600">✅ File uploaded! Redirecting...</p>
       )}

@@ -49,7 +49,7 @@ export const ChemicalProvider = ({ children }) => {
         analyzeResult,
         setAnalyzeResult,
         resetChemicals,
-        getCachedCombination,     // ✅ expose cache handlers
+        getCachedCombination, // ✅ expose cache handlers
         setCachedCombination,
       }}
     >

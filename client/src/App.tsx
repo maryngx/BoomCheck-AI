@@ -10,14 +10,14 @@ import ProcedurePage from "./pages/ProcedurePage";
 
 const App = () => {
   return (
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/workspace" element={<Workspace />} />
-        <Route path="/analyze" element={<AnalyzeResult />} />
-        <Route path="/combine" element={<CombineResult />} />
-        <Route path="/quiz" element={<QuizPage />} />
-        <Route path="/procedure" element={<ProcedurePage />} />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/workspace" element={<Workspace />} />
+      <Route path="/analyze" element={<AnalyzeResult />} />
+      <Route path="/combine" element={<CombineResult />} />
+      <Route path="/quiz" element={<QuizPage />} />
+      <Route path="/procedure" element={<ProcedurePage />} />
+    </Routes>
   );
 };
 

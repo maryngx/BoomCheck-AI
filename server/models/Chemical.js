@@ -33,8 +33,8 @@ const ChemicalSchema = new mongoose.Schema({
   storage: { type: String },
   spill_procedures: { type: String },
 
-    // 🧪 Make this flexible for either a string or an object
-    regulatory: { type: Schema.Types.Mixed },
+  // 🧪 Make this flexible for either a string or an object
+  regulatory: { type: Schema.Types.Mixed },
 
   environmental_hazard: { type: String },
 });

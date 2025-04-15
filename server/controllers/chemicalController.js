@@ -1,7 +1,9 @@
 const Chemical = require("../models/Chemical"); // ✅ MongoDB model
 const { getChemicalData } = require("../utils/msdsSummarizer");
 const { generateQuizFromText } = require("../ai/openai/quizMaker");
-const { generateLabProcedureFromText } = require("../ai/openai/labProcedureGenerator");
+const {
+  generateLabProcedureFromText,
+} = require("../ai/openai/labProcedureGenerator");
 const { combineChemicalsAI } = require("../ai/openai/combineAI");
 
 /**
@@ -17,11 +19,14 @@ exports.getChemicalInfo = async (req, res) => {
 
   try {
     const found = await Chemical.find({
-      $or: chemicalNames.map(name => ({
-        name: { $regex: `^${name}$`, $options: "i" }
-      }))
+      $or: chemicalNames.map((name) => ({
+        name: { $regex: `^${name}$`, $options: "i" },
+      })),
     });
-    console.log("✅ Chemicals found:", found.map(c => c.name));
+    console.log(
+      "✅ Chemicals found:",
+      found.map((c) => c.name),
+    );
 
     const summaries = found.map((chem) => ({
       name: chem.name,
@@ -111,7 +116,9 @@ exports.combineChemicals = async (req, res) => {
     console.timeEnd("⏱️ Combine API Time");
   } catch (err) {
     console.error("❌ Error in combineChemicals:", err);
-    res.status(500).json({ error: "Failed to analyze combination", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Failed to analyze combination", details: err.message });
   }
 };
 
@@ -136,7 +143,9 @@ exports.generateChemicalQuiz = async (req, res) => {
   console.log("🧪 Quiz requested for:", text);
 
   if (!text || typeof text !== "string" || text.trim().length < 10) {
-    return res.status(400).json({ error: "Please provide valid experiment text." });
+    return res
+      .status(400)
+      .json({ error: "Please provide valid experiment text." });
   }
 
   try {
@@ -144,7 +153,9 @@ exports.generateChemicalQuiz = async (req, res) => {
     res.json(quiz);
   } catch (err) {
     console.error("❌ Quiz generation error:", err);
-    res.status(500).json({ error: "Quiz generation failed", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Quiz generation failed", details: err.message });
   }
 };
 
@@ -156,14 +167,21 @@ exports.createLabProcedure = async (req, res) => {
   console.log("📄 Generating lab procedures from uploaded text...");
 
   if (!text || typeof text !== "string" || text.trim().length < 10) {
-    return res.status(400).json({ error: "Please provide valid experiment text" });
+    return res
+      .status(400)
+      .json({ error: "Please provide valid experiment text" });
   }
 
   try {
-    const procedure = await generateLabProcedureFromText(text, process.env.OPENAI_API_KEY);
+    const procedure = await generateLabProcedureFromText(
+      text,
+      process.env.OPENAI_API_KEY,
+    );
     res.json({ procedure, source: "ai" });
   } catch (err) {
     console.error("❌ Procedure generation error:", err);
-    res.status(500).json({ error: "Failed to generate procedure", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Failed to generate procedure", details: err.message });
   }
 };

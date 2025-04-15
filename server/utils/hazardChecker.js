@@ -1,12 +1,12 @@
-const path = require('path');
-const rules = require('../ai/rules/hazard-rules.json');
-const db = require('../data/db.json');
+const path = require("path");
+const rules = require("../ai/rules/hazard-rules.json");
+const db = require("../data/db.json");
 
 /**
  * Get full chemical object from name
  */
 function getChemicalByName(name) {
-  return db.find(c => c.name.toLowerCase() === name.toLowerCase());
+  return db.find((c) => c.name.toLowerCase() === name.toLowerCase());
 }
 
 /**
@@ -25,14 +25,20 @@ function applyFallbackChecks(chemicals) {
     const chem = getChemicalByName(name);
     if (!chem) continue;
 
-    const hazard = chem.hazard_status?.toLowerCase() || '';
-    const incompat = chem.incompatibilities?.toLowerCase() || '';
+    const hazard = chem.hazard_status?.toLowerCase() || "";
+    const incompat = chem.incompatibilities?.toLowerCase() || "";
 
-    if (hazard.includes('corrosive') || incompat.includes('acid')) flags.bases.push(name);
-    if (incompat.includes('base') || hazard.includes('acid')) flags.acids.push(name);
-    if (hazard.includes('flammable')) flags.flammables.push(name);
-    if (incompat.includes('oxidizer') || name.toLowerCase().includes('peroxide')) flags.oxidizers.push(name);
-    if (hazard.includes('irritant')) flags.irritants.push(name);
+    if (hazard.includes("corrosive") || incompat.includes("acid"))
+      flags.bases.push(name);
+    if (incompat.includes("base") || hazard.includes("acid"))
+      flags.acids.push(name);
+    if (hazard.includes("flammable")) flags.flammables.push(name);
+    if (
+      incompat.includes("oxidizer") ||
+      name.toLowerCase().includes("peroxide")
+    )
+      flags.oxidizers.push(name);
+    if (hazard.includes("irritant")) flags.irritants.push(name);
   }
 
   const fallbackResults = [];
@@ -41,7 +47,8 @@ function applyFallbackChecks(chemicals) {
     fallbackResults.push({
       chemicals: [...flags.acids, ...flags.bases],
       hazard: "Possible exothermic neutralization reaction",
-      alternative: "Consider pre-diluting reagents and using protective equipment"
+      alternative:
+        "Consider pre-diluting reagents and using protective equipment",
     });
   }
 
@@ -49,15 +56,16 @@ function applyFallbackChecks(chemicals) {
     fallbackResults.push({
       chemicals: [...flags.flammables, ...flags.oxidizers],
       hazard: "Risk of fire or explosion when flammables mix with oxidizers",
-      alternative: "Avoid open flames and store separately"
+      alternative: "Avoid open flames and store separately",
     });
   }
 
   if (flags.irritants.length && flags.bases.length) {
     fallbackResults.push({
       chemicals: [...flags.irritants, ...flags.bases],
-      hazard: "Irritant and corrosive base combination may increase tissue damage risk",
-      alternative: "Handle with enhanced PPE and separate procedures"
+      hazard:
+        "Irritant and corrosive base combination may increase tissue damage risk",
+      alternative: "Handle with enhanced PPE and separate procedures",
     });
   }
 
@@ -68,18 +76,18 @@ function applyFallbackChecks(chemicals) {
  * Check for any hazardous interactions (explicit + fallback)
  */
 function checkHazardRules(inputChemicals) {
-  const normalizedInput = inputChemicals.map(name => name.toLowerCase());
+  const normalizedInput = inputChemicals.map((name) => name.toLowerCase());
 
   // First: Exact match rules
   const ruleMatches = rules
-    .filter(rule => {
-      const ruleChems = rule.chemicals.map(c => c.toLowerCase());
-      return ruleChems.every(rc => normalizedInput.includes(rc));
+    .filter((rule) => {
+      const ruleChems = rule.chemicals.map((c) => c.toLowerCase());
+      return ruleChems.every((rc) => normalizedInput.includes(rc));
     })
-    .map(match => ({
+    .map((match) => ({
       chemicals: match.chemicals,
       hazard: match.hazard,
-      alternative: match.alternative || null
+      alternative: match.alternative || null,
     }));
 
   // Then: Fallback logic
@@ -87,14 +95,14 @@ function checkHazardRules(inputChemicals) {
 
   if (ruleMatches.length || fallbackMatches.length) {
     return {
-      status: 'hazard_detected',
-      results: [...ruleMatches, ...fallbackMatches]
+      status: "hazard_detected",
+      results: [...ruleMatches, ...fallbackMatches],
     };
   }
 
   return {
-    status: 'safe',
-    message: 'No dangerous combinations found'
+    status: "safe",
+    message: "No dangerous combinations found",
   };
 }
 

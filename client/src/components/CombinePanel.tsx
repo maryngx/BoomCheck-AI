@@ -29,7 +29,7 @@ const CombinePanel = () => {
 
   const handleCombine = async () => {
     if (combineList.length < 2) return;
-  
+
     const cached = getCachedCombination(combineList);
     if (cached) {
       console.log("✅ Using cached result for:", combineList);
@@ -37,12 +37,15 @@ const CombinePanel = () => {
       navigate("/combine");
       return;
     }
-  
+
     try {
       // const res = await axios.post("http://localhost:5000/api/combine", {
-      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/combine`, {
-        chemicals: combineList,
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/combine`,
+        {
+          chemicals: combineList,
+        },
+      );
       console.log("🧪 Combine result from backend:", res.data);
       setCombineResult(res.data);
       setCachedCombination(combineList, res.data); // ✅ store to cache

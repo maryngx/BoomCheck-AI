@@ -2,24 +2,26 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 function sanitizeGeminiOutput(text) {
-    const jsonMatch = text.match(/```json([\s\S]*?)```/i) || text.match(/{[\s\S]*}/);
-    if (!jsonMatch) throw new Error("❌ Gemini response did not include valid JSON.");
-  
-    const data = JSON.parse(jsonMatch[1] || jsonMatch[0]);
-  
-    // ✅ Defensive schema patching
-    data.hmnfpa = data.hmnfpa || { health: 0, fire: 0, reactivity: 0 };
-    if (!Array.isArray(data.ppe)) data.ppe = ["Lab coat", "Gloves", "Safety goggles"];
-    if (typeof data.first_aid !== "object") {
-      data.first_aid = { skin: "", eyes: "", inhalation: "", ingestion: "" };
-    }
-    if (typeof data.regulatory !== "object") {
-      data.regulatory = { info: data.regulatory || "" };
-    }
-  
-    return data;
+  const jsonMatch =
+    text.match(/```json([\s\S]*?)```/i) || text.match(/{[\s\S]*}/);
+  if (!jsonMatch)
+    throw new Error("❌ Gemini response did not include valid JSON.");
+
+  const data = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+
+  // ✅ Defensive schema patching
+  data.hmnfpa = data.hmnfpa || { health: 0, fire: 0, reactivity: 0 };
+  if (!Array.isArray(data.ppe))
+    data.ppe = ["Lab coat", "Gloves", "Safety goggles"];
+  if (typeof data.first_aid !== "object") {
+    data.first_aid = { skin: "", eyes: "", inhalation: "", ingestion: "" };
   }
-  
+  if (typeof data.regulatory !== "object") {
+    data.regulatory = { info: data.regulatory || "" };
+  }
+
+  return data;
+}
 
 exports.generateMSDSWithGemini = async (chemicalName) => {
   const prompt = `
@@ -61,17 +63,17 @@ Return ONLY the JSON object, matching the schema below:
 }
 `;
 
-const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
-const result = await model.generateContent({
-  contents: [{ role: "user", parts: [{ text: prompt }] }],
-});
+  const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  });
 
   const text = result.response.text();
   return sanitizeGeminiOutput(text);
 };
 
 exports.generateMSDSBatch = async (chemicalNames = []) => {
-    const prompt = `
+  const prompt = `
   You are a chemistry assistant.
   
   Generate strict JSON MSDS entries for the following chemicals:
@@ -106,14 +108,17 @@ exports.generateMSDSBatch = async (chemicalNames = []) => {
   
   No explanation. No markdown. Only JSON array output.
   `;
-  
-    const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-    });
-  
-    const response = await result.response;
-    let raw = response.text().replace(/```json\s*([\s\S]*?)```/, "$1").trim();
-  
-    return JSON.parse(raw);
-};  
+
+  const model = ai.getGenerativeModel({ model: "gemini-1.5-pro" });
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+  });
+
+  const response = await result.response;
+  let raw = response
+    .text()
+    .replace(/```json\s*([\s\S]*?)```/, "$1")
+    .trim();
+
+  return JSON.parse(raw);
+};

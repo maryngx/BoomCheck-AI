@@ -9,8 +9,19 @@ const mammoth = require("mammoth");
 const Chemical = require("../models/Chemical");
 
 function convertToSubscript(formula) {
-  const subMap = { '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉' };
-  return formula.replace(/\d/g, d => subMap[d] || d);
+  const subMap = {
+    0: "₀",
+    1: "₁",
+    2: "₂",
+    3: "₃",
+    4: "₄",
+    5: "₅",
+    6: "₆",
+    7: "₇",
+    8: "₈",
+    9: "₉",
+  };
+  return formula.replace(/\d/g, (d) => subMap[d] || d);
 }
 
 function getIconFromHazard(msds) {
@@ -18,7 +29,12 @@ function getIconFromHazard(msds) {
   const flame = msds.flammability?.toLowerCase() || "";
 
   if (flame.includes("flammable") || flame.includes("combustible")) return "🔥";
-  if (status.includes("corrosive") || status.includes("irritant") || status.includes("harmful")) return "⚠️";
+  if (
+    status.includes("corrosive") ||
+    status.includes("irritant") ||
+    status.includes("harmful")
+  )
+    return "⚠️";
   return "✅";
 }
 
@@ -47,7 +63,9 @@ exports.handleFileUpload = async (req, res) => {
 
     // 📥 2. Get all known chemical names from DB
     const allChemicals = await Chemical.find({});
-    const nameSet = new Set(allChemicals.map(c => c.name?.toLowerCase().trim()));
+    const nameSet = new Set(
+      allChemicals.map((c) => c.name?.toLowerCase().trim()),
+    );
 
     // 🔎 3. Extract chemicals using AI + fallback
     const aiResults = await extractWithGeminiAI(text);
@@ -56,7 +74,7 @@ exports.handleFileUpload = async (req, res) => {
 
     // 🔬 4. Separate new vs. existing chemicals (name check only)
     const isKnown = (name) => nameSet.has(name.toLowerCase().trim());
-    const newNames = extracted.filter(name => !isKnown(name));
+    const newNames = extracted.filter((name) => !isKnown(name));
     const finalChemicals = [...extracted];
     const newlyAddedChemicals = [];
 
@@ -95,20 +113,29 @@ exports.handleFileUpload = async (req, res) => {
       chemicals: finalChemicals,
       newlyAddedChemicals,
       text,
-      source: aiResults.length > 0 ? "ai-first" : fallbackResults.length > 0 ? "fallback" : "none",
+      source:
+        aiResults.length > 0
+          ? "ai-first"
+          : fallbackResults.length > 0
+            ? "fallback"
+            : "none",
       details: {
-        fromAI: finalChemicals.filter(name =>
-          aiResults.some(ai => ai.toLowerCase() === name.toLowerCase())
+        fromAI: finalChemicals.filter((name) =>
+          aiResults.some((ai) => ai.toLowerCase() === name.toLowerCase()),
         ),
-        fromFallback: finalChemicals.filter(name =>
-          fallbackResults.some(fb => fb.toLowerCase() === name.toLowerCase()) &&
-          !aiResults.some(ai => ai.toLowerCase() === name.toLowerCase())
+        fromFallback: finalChemicals.filter(
+          (name) =>
+            fallbackResults.some(
+              (fb) => fb.toLowerCase() === name.toLowerCase(),
+            ) &&
+            !aiResults.some((ai) => ai.toLowerCase() === name.toLowerCase()),
         ),
       },
     });
-
   } catch (err) {
     console.error("Upload error:", err);
-    res.status(500).json({ error: "Failed to process document", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Failed to process document", details: err.message });
   }
 };

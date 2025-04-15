@@ -17,9 +17,12 @@ const QuizPage = () => {
       setLoading(true);
       try {
         // const res = await axios.post("http://localhost:5000/api/quiz", {
-        const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/quiz`, {
-          text: fileText,
-        });
+        const res = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/api/quiz`,
+          {
+            text: fileText,
+          },
+        );
         console.log("📥 Quiz API response:", res.data);
         setQuestions(res.data.questions || []);
       } catch (err) {
@@ -52,67 +55,75 @@ const QuizPage = () => {
       <FloatingIconsBackground />
 
       <div className="min-h-screen p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">⁉️ Pre-Lab Quiz</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">⁉️ Pre-Lab Quiz</h1>
 
-      {loading ? (
-        <p className="text-center text-gray-500">Generating quiz...</p>
-      ) : questions.length === 0 ? (
-        <p className="text-center text-red-500">⚠️ No quiz questions available.</p>
-      ) : (
-        <form onSubmit={(e) => e.preventDefault()}>
-          <div className="grid gap-6">
-            {questions.map((q, i) => (
-              <div key={i} className="bg-white p-4 rounded-xl shadow">
-                <h2 className="font-semibold mb-2">{i + 1}. {q.question}</h2>
-                {q.choices.map((choice, j) => (
-                  <label key={j} className="block mb-1">
-                    <input
-                      type="radio"
-                      name={`q-${i}`}
-                      value={choice}
-                      checked={answers[i] === choice}
-                      onChange={() => handleSelect(i, choice)}
-                      disabled={submitted}
-                      className="mr-2"
-                    />
-                    {choice}
-                  </label>
-                ))}
-                {submitted && (
-                  <p className={`mt-1 text-sm ${answers[i] === q.correct ? "text-green-600" : "text-red-600"}`}>
-                    {answers[i] === q.correct ? "✅ Correct" : `❌ Correct answer: ${q.correct}`}
-                  </p>
-                )}
+        {loading ? (
+          <p className="text-center text-gray-500">Generating quiz...</p>
+        ) : questions.length === 0 ? (
+          <p className="text-center text-red-500">
+            ⚠️ No quiz questions available.
+          </p>
+        ) : (
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="grid gap-6">
+              {questions.map((q, i) => (
+                <div key={i} className="bg-white p-4 rounded-xl shadow">
+                  <h2 className="font-semibold mb-2">
+                    {i + 1}. {q.question}
+                  </h2>
+                  {q.choices.map((choice, j) => (
+                    <label key={j} className="block mb-1">
+                      <input
+                        type="radio"
+                        name={`q-${i}`}
+                        value={choice}
+                        checked={answers[i] === choice}
+                        onChange={() => handleSelect(i, choice)}
+                        disabled={submitted}
+                        className="mr-2"
+                      />
+                      {choice}
+                    </label>
+                  ))}
+                  {submitted && (
+                    <p
+                      className={`mt-1 text-sm ${answers[i] === q.correct ? "text-green-600" : "text-red-600"}`}
+                    >
+                      {answers[i] === q.correct
+                        ? "✅ Correct"
+                        : `❌ Correct answer: ${q.correct}`}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {!submitted ? (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={handleSubmit}
+                  className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-400"
+                >
+                  Submit Quiz
+                </button>
               </div>
-            ))}
-          </div>
+            ) : (
+              <div className="mt-6 text-center text-xl font-semibold text-green-700">
+                🎉 Your Score: {getScore()} / {questions.length}
+              </div>
+            )}
+          </form>
+        )}
 
-          {!submitted ? (
-            <div className="mt-6 text-center">
-              <button
-                onClick={handleSubmit}
-                className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-400"
-              >
-                Submit Quiz
-              </button>
-            </div>
-          ) : (
-            <div className="mt-6 text-center text-xl font-semibold text-green-700">
-              🎉 Your Score: {getScore()} / {questions.length}
-            </div>
-          )}
-        </form>
-      )}
-
-      <div className="mt-8 text-center">
-        <button
-          onClick={() => navigate("/workspace")}
-          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-300"
-        >
-          ← Back to Workspace
-        </button>
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => navigate("/workspace")}
+            className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-300"
+          >
+            ← Back to Workspace
+          </button>
+        </div>
       </div>
-    </div>
     </div>
   );
 };
